@@ -7,35 +7,35 @@ func (c cookbook) CreateRecipe(
 ) (RecipeID, error) {
 	userID, err := c.sessionRepository.GetUserID(userContext.SessionToken)
 	if err != nil {
-		if errors.Is(err, UnknownSessionTokenError) {
-			return EmptyRecipeID, UnknownSessionTokenError
+		if errors.Is(err, ErrUnknownSessionToken) {
+			return EmptyRecipeID, ErrUnknownSessionToken
 		}
 
-		return EmptyRecipeID, UnknownError
+		return EmptyRecipeID, ErrUnknown
 	}
 
 	err = c.userRepository.CanUserPublishInGroups(userID, recipe.Groups)
 	if err != nil {
-		if errors.Is(err, UnknownUserErr) {
-			return EmptyRecipeID, UnknownUserErr
+		if errors.Is(err, ErrUnknownUser) {
+			return EmptyRecipeID, ErrUnknownUser
 		}
 
-		var userIsNotInGroupErr UserIsNotInGroupsErr
+		var userIsNotInGroupErr UserIsNotInGroupsError
 		if errors.As(err, &userIsNotInGroupErr) {
 			return EmptyRecipeID, userIsNotInGroupErr
 		}
 
-		var userCannotPublishErr UserCannotPublishInGroups
+		var userCannotPublishErr UserCannotPublishInGroupsError
 		if errors.As(err, &userCannotPublishErr) {
 			return EmptyRecipeID, userCannotPublishErr
 		}
 
-		return EmptyRecipeID, UnknownError
+		return EmptyRecipeID, ErrUnknown
 	}
 
 	recipeID, err := c.recipesRepository.CreateRecipe(recipe)
 	if err != nil {
-		return EmptyRecipeID, UnknownError
+		return EmptyRecipeID, ErrUnknown
 	}
 
 	return recipeID, nil

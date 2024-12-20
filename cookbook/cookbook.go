@@ -1,10 +1,12 @@
 package cookbook
 
-type GroupID string
-type IngredientID string
-type RecipeID string
-type SessionToken string
-type UserID string
+type (
+	GroupID      string
+	IngredientID string
+	RecipeID     string
+	SessionToken string
+	UserID       string
+)
 
 const (
 	EmptyGroupID      = GroupID("")

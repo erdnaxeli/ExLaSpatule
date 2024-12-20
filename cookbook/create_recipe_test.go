@@ -16,7 +16,7 @@ func TestCreateRecipe_UnknownSessionToken(t *testing.T) {
 	rr := &testRecipeRepository{}
 	ur := &testUserRepository{}
 	sr := &testSessionRepository{}
-	sr.On("GetUserID", token).Return(cookbook.EmptyUserID, cookbook.UnknownSessionTokenError)
+	sr.On("GetUserID", token).Return(cookbook.EmptyUserID, cookbook.ErrUnknownSessionToken)
 
 	cb := cookbook.NewCookbook(rr, ur, sr)
 
@@ -25,7 +25,7 @@ func TestCreateRecipe_UnknownSessionToken(t *testing.T) {
 
 	// assertions
 	assert.Equal(t, cookbook.EmptyRecipeID, recipeID)
-	assert.ErrorIs(t, err, cookbook.UnknownSessionTokenError)
+	assert.ErrorIs(t, err, cookbook.ErrUnknownSessionToken)
 
 	rr.AssertExpectations(t)
 	ur.AssertExpectations(t)
@@ -48,7 +48,7 @@ func TestCreateRecipe_SessionRepositoryUnknownError(t *testing.T) {
 
 	// assertions
 	assert.Equal(t, cookbook.EmptyRecipeID, recipeID)
-	assert.ErrorIs(t, err, cookbook.UnknownError)
+	assert.ErrorIs(t, err, cookbook.ErrUnknown)
 
 	rr.AssertExpectations(t)
 	ur.AssertExpectations(t)
@@ -65,7 +65,7 @@ func TestCreateRecipe_UnknownUser(t *testing.T) {
 	ur := &testUserRepository{}
 	sr := &testSessionRepository{}
 	sr.On("GetUserID", token).Return(userID, nil)
-	ur.On("CanUserPublishInGroups", userID, groups).Return(cookbook.UnknownUserErr)
+	ur.On("CanUserPublishInGroups", userID, groups).Return(cookbook.ErrUnknownUser)
 
 	cb := cookbook.NewCookbook(rr, ur, sr)
 
@@ -74,7 +74,7 @@ func TestCreateRecipe_UnknownUser(t *testing.T) {
 
 	// assertions
 	assert.Equal(t, cookbook.RecipeID(""), recipeID)
-	assert.ErrorIs(t, err, cookbook.UnknownUserErr)
+	assert.ErrorIs(t, err, cookbook.ErrUnknownUser)
 
 	rr.AssertExpectations(t)
 	ur.AssertExpectations(t)
@@ -86,7 +86,7 @@ func TestCreateRecipe_UserNotInGroups(t *testing.T) {
 	token := cookbook.SessionToken("abcdef")
 	userID := cookbook.UserID("someid")
 	groups := []cookbook.GroupID{"group1", "group2"}
-	rErr := cookbook.UserIsNotInGroupsErr{Groups: groups[:1]}
+	rErr := cookbook.UserIsNotInGroupsError{Groups: groups[:1]}
 
 	rr := &testRecipeRepository{}
 	ur := &testUserRepository{}
@@ -101,7 +101,7 @@ func TestCreateRecipe_UserNotInGroups(t *testing.T) {
 
 	// assertions
 	assert.Equal(t, cookbook.RecipeID(""), recipeID)
-	var tErr cookbook.UserIsNotInGroupsErr
+	var tErr cookbook.UserIsNotInGroupsError
 	require.ErrorAs(t, err, &tErr)
 	assert.Equal(t, rErr.Groups, tErr.Groups)
 
@@ -115,7 +115,7 @@ func TestCreateRecipe_UserCannotPublish(t *testing.T) {
 	token := cookbook.SessionToken("abcdef")
 	userID := cookbook.UserID("someid")
 	groups := []cookbook.GroupID{"group1", "group2"}
-	rErr := cookbook.UserCannotPublishInGroups{Groups: groups[:1]}
+	rErr := cookbook.UserCannotPublishInGroupsError{Groups: groups[:1]}
 
 	rr := &testRecipeRepository{}
 	ur := &testUserRepository{}
@@ -130,7 +130,7 @@ func TestCreateRecipe_UserCannotPublish(t *testing.T) {
 
 	// assertions
 	assert.Equal(t, cookbook.RecipeID(""), recipeID)
-	var tErr cookbook.UserCannotPublishInGroups
+	var tErr cookbook.UserCannotPublishInGroupsError
 	require.ErrorAs(t, err, &tErr)
 	assert.Equal(t, rErr.Groups, tErr.Groups)
 
@@ -158,7 +158,7 @@ func TestCreateRecipe_UserRepositoryUnknownError(t *testing.T) {
 
 	// assertions
 	assert.Equal(t, cookbook.RecipeID(""), recipeID)
-	assert.ErrorIs(t, err, cookbook.UnknownError)
+	assert.ErrorIs(t, err, cookbook.ErrUnknown)
 
 	rr.AssertExpectations(t)
 	ur.AssertExpectations(t)
@@ -186,7 +186,7 @@ func TestCreateRecipe_RecipeRepositoryUnknownError(t *testing.T) {
 
 	// assertions
 	assert.Equal(t, cookbook.RecipeID(""), recipeID)
-	assert.ErrorIs(t, err, cookbook.UnknownError)
+	assert.ErrorIs(t, err, cookbook.ErrUnknown)
 
 	rr.AssertExpectations(t)
 	ur.AssertExpectations(t)

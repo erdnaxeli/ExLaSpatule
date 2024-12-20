@@ -4,22 +4,24 @@ import (
 	"errors"
 )
 
-var UnknownSessionTokenError = errors.New("Unknown session token")
-var UnknownUserErr = errors.New("Unknown user")
-var UnknownError = errors.New("An unknown error happened")
+var (
+	ErrUnknownSessionToken = errors.New("Unknown session token")
+	ErrUnknownUser         = errors.New("Unknown user")
+	ErrUnknown             = errors.New("An unknown error happened")
+)
 
-type UserIsNotInGroupsErr struct {
+type UserIsNotInGroupsError struct {
 	Groups []GroupID
 }
 
-func (UserIsNotInGroupsErr) Error() string {
+func (UserIsNotInGroupsError) Error() string {
 	return "User is not in groups"
 }
 
-type UserCannotPublishInGroups struct {
+type UserCannotPublishInGroupsError struct {
 	Groups []GroupID
 }
 
-func (UserCannotPublishInGroups) Error() string {
+func (UserCannotPublishInGroupsError) Error() string {
 	return "User cannot publish in groups"
 }
